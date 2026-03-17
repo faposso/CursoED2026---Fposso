@@ -4,21 +4,6 @@
 
 #define PI 3.1415
 
-float area_circulo(float radio) {
-    return PI * radio * radio;
-}
-
-float area_cuadrado(float base, float altura) {
-    return base * altura;
-}
-
-float volumen_esfera(float radio) {
-    return (4.0 / 3.0) * PI * radio * radio * radio;
-}
-
-float volumen_cubo(float lado) {
-    return lado * lado * lado;
-}
 
 int main() {
     int opcion;
@@ -27,7 +12,7 @@ int main() {
     do {
         printf("\n===== CALCULADORA DE AREAS Y VOLUMENES =====\n");
         printf("1. Calcular area del circulo\n");
-        printf("2. Calcular area del mcuadrado\n");
+        printf("2. Calcular area del cuadrado\n");
         printf("3. Calcular volumen de la esfera\n");
         printf("4. Calcular volumen del cubo\n");
         printf("5. Salir\n");
@@ -47,16 +32,14 @@ int main() {
                 break;
             case 2:
                 printf("\n--- Area del Cuadrado ---\n");
-                float base, altura;
-                printf("Ingresa la base (en cm): ");
-                scanf("%f", &base);
-                printf("Ingresa la altura (en cm): ");
-                scanf("%f", &altura);
-                
-                if (base > 0 && altura > 0) {
-                    printf("Resultado: El area del cuadrado es %.2f cm²\n", area_cuadrado(base, altura));
+                float lado;
+                printf("Ingresa el lado (en cm): ");
+                scanf("%f", &lado);
+
+                if (lado > 0) {
+                    printf("Resultado: El area del cuadrado es %.2f cm²\n", area_cuadrado(lado, lado));
                 } else {
-                    printf("Error: La base y altura deben ser numeros positivos.\n");
+                    printf("Error: El lado debe ser un numero positivo.\n");
                 }
                 break;
             case 3:
