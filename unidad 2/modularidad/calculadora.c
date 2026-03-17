@@ -2,8 +2,6 @@
 #include "areas.h"
 #include "volumenes.h"
 
-#define PI 3.1415
-
 
 int main() {
     int opcion;
