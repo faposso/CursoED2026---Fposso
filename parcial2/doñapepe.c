@@ -31,7 +31,7 @@ NodoCliente *final = NULL;
 float totalLitrosSabor(const char sabor[]);
 void buscarRecipiente(const char sabor[], float litrosSolicitados);
 
-// Agrega un nuevo cliente a la cola
+
 // Agrega un nuevo cliente a la cola
 void encolar()
 {
@@ -79,7 +79,7 @@ void encolar()
     printf("Cliente registrado correctamente.\n");
 }
 
-// Atiende al primer cliente de la cola
+
 // Atiende al primer cliente de la cola
 void desencolar()
 {
@@ -135,7 +135,7 @@ typedef struct NodoPila
 
 NodoPila *tope = NULL;
 
-// Agrega un recipiente a la pila
+
 // Agrega un recipiente a la pila
 void push()
 {
@@ -287,7 +287,7 @@ void buscarRecipiente(const char sabor[], float litrosSolicitados)
         free(eliminar);
     }
 }
-// Muestra todos los clientes en espera
+
 // Muestra todos los clientes en espera
 void mostrarCola()
 {
