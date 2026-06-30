@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 // Definición de estructuras y constantes
-#define MAX_SABORES 10
 #define MAX_NOMBRE 30
 // Estructura para representar un cliente
 typedef struct
