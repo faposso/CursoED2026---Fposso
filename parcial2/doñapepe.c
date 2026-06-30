@@ -19,54 +19,82 @@ typedef struct
     float litros;
 } Recipiente;
 
-#define MAX_CLIENTES 50
+typedef struct NodoCliente
+{
+    Cliente datos;
+    struct NodoCliente *siguiente;
+} NodoCliente;
 
-Cliente cola[MAX_CLIENTES];
-
-int cabeza = 0;   // Índice del primer cliente
-int final = -1;   // Índice del último cliente
+NodoCliente *cabeza = NULL;
+NodoCliente *final = NULL;
 
 float totalLitrosSabor(const char sabor[]);
 void buscarRecipiente(const char sabor[], float litrosSolicitados);
 
 // Agrega un nuevo cliente a la cola
+// Agrega un nuevo cliente a la cola
 void encolar()
 {
-    if (final == MAX_CLIENTES - 1)
+    // Crear un nuevo nodo
+    NodoCliente *nuevo = (NodoCliente *)malloc(sizeof(NodoCliente));
+
+    // Verificar si se pudo reservar memoria
+    if (nuevo == NULL)
     {
-        printf("La cola esta llena.\n");
+        printf("No hay memoria disponible.\n");
         return;
     }
 
-    final++;
-
+    // Pedir los datos del cliente
     printf("Nombre del cliente: ");
-    scanf(" %[^\n]", cola[final].nombre);
+    scanf(" %[^\n]", nuevo->datos.nombre);
 
     printf("Sabor: ");
-    scanf(" %[^\n]", cola[final].sabor);
+    scanf(" %[^\n]", nuevo->datos.sabor);
 
     printf("Cantidad de litros: ");
-    scanf("%f", &cola[final].litros);
+    scanf("%f", &nuevo->datos.litros);
 
-     // Precio: 8000 por litro
-    cola[final].total = cola[final].litros * 8000;
+    // Calcular el total
+    nuevo->datos.total = nuevo->datos.litros * 8000;
+
+    // Como es el último nodo, no apunta a nadie
+    nuevo->siguiente = NULL;
+
+    // Si la cola está vacía
+    if (cabeza == NULL)
+    {
+        cabeza = nuevo;
+        final = nuevo;
+    }
+    else
+    {
+        // Enlazar el nuevo nodo al final
+        final->siguiente = nuevo;
+
+        // Actualizar el último nodo
+        final = nuevo;
+    }
 
     printf("Cliente registrado correctamente.\n");
 }
 
 // Atiende al primer cliente de la cola
+// Atiende al primer cliente de la cola
 void desencolar()
 {
-    if (cabeza > final)
+    // Verificar si la cola está vacía
+    if (cabeza == NULL)
     {
         printf("No hay clientes en espera.\n");
         return;
     }
 
+    NodoCliente *aux = cabeza;
+
     printf("\n--- ATENDIENDO CLIENTE ---\n");
 
-    float litrosDisponibles = totalLitrosSabor(cola[cabeza].sabor);
+    float litrosDisponibles = totalLitrosSabor(aux->datos.sabor);
 
     if (litrosDisponibles == 0)
     {
@@ -74,76 +102,117 @@ void desencolar()
         return;
     }
 
-    if (litrosDisponibles < cola[cabeza].litros)
+    if (litrosDisponibles < aux->datos.litros)
     {
         printf("No hay suficientes litros de ese sabor.\n");
         return;
     }
 
-    // Retira los litros de los recipientes
-    buscarRecipiente(cola[cabeza].sabor, cola[cabeza].litros);
+    buscarRecipiente(aux->datos.sabor, aux->datos.litros);
 
-    printf("Nombre: %s\n", cola[cabeza].nombre);
-    printf("Sabor: %s\n", cola[cabeza].sabor);
-    printf("Cantidad: %.2f litros\n", cola[cabeza].litros);
-    printf("Total: $%.2f\n", cola[cabeza].total);
+    printf("Nombre: %s\n", aux->datos.nombre);
+    printf("Sabor: %s\n", aux->datos.sabor);
+    printf("Cantidad: %.2f litros\n", aux->datos.litros);
+    printf("Total: $%.2f\n", aux->datos.total);
 
-    cabeza++;
+    cabeza = cabeza->siguiente;
+
+    if (cabeza == NULL)
+    {
+        final = NULL;
+    }
+
+    free(aux);
 
     printf("Cliente atendido correctamente.\n");
 }
 
-Recipiente pila[MAX_SABORES];
+typedef struct NodoPila
+{
+    Recipiente datos;
+    struct NodoPila *siguiente;
+} NodoPila;
 
+NodoPila *tope = NULL;
 
-
-int tope = -1;  // Índice del último recipiente
-
+// Agrega un recipiente a la pila
 // Agrega un recipiente a la pila
 void push()
 {
-    if (tope == MAX_SABORES - 1)
+    NodoPila *nuevo = (NodoPila *)malloc(sizeof(NodoPila));
+
+    if (nuevo == NULL)
     {
-        printf("La pila esta llena.\n");
+        printf("No hay memoria disponible.\n");
         return;
     }
 
-    tope++;
-
     printf("Nombre del sabor: ");
-    scanf(" %[^\n]", pila[tope].sabor);
+    scanf(" %[^\n]", nuevo->datos.sabor);
 
     printf("Cantidad de litros: ");
-    scanf("%f", &pila[tope].litros);
+    scanf("%f", &nuevo->datos.litros);
+
+    // El nuevo nodo apunta al antiguo tope
+    nuevo->siguiente = tope;
+
+    // Ahora el nuevo nodo pasa a ser el tope
+    tope = nuevo;
 
     printf("Recipiente agregado correctamente.\n");
 }
+void pushRecipiente(Recipiente r)
+{
+    NodoPila *nuevo = (NodoPila *)malloc(sizeof(NodoPila));
+
+    if (nuevo == NULL)
+    {
+        printf("No hay memoria disponible.\n");
+        return;
+    }
+
+    nuevo->datos = r;
+    nuevo->siguiente = tope;
+    tope = nuevo;
+}
+// Retira el recipiente que está en el tope de la pila
 Recipiente pop()
 {
     Recipiente aux;
 
-    if (tope == -1)
+    // Verificar si la pila está vacía
+    if (tope == NULL)
     {
         printf("La pila esta vacia.\n");
+
         strcpy(aux.sabor, "");
         aux.litros = 0;
+
         return aux;
     }
 
-    aux = pila[tope];
-    tope--;
+    // Guardar la información del recipiente
+    aux = tope->datos;
 
+    // Guardar el nodo que se va a eliminar
+    NodoPila *eliminar = tope;
+
+    // Mover el tope al siguiente nodo
+    tope = tope->siguiente;
+
+    // Liberar la memoria del nodo eliminado
+    free(eliminar);
+
+    // Devolver el recipiente
     return aux;
 }
 // Calcula el total de litros disponibles de un sabor
 float totalLitrosSabor(const char sabor[])
 {
-    Recipiente auxiliar[MAX_SABORES];
-    int topeAux = -1;
-
+    NodoPila *auxiliar = NULL;
     float total = 0;
 
-    while (tope != -1)
+    while (tope != NULL)
     {
         Recipiente r = pop();
 
@@ -152,13 +221,22 @@ float totalLitrosSabor(const char sabor[])
             total += r.litros;
         }
 
-        auxiliar[++topeAux] = r;
+        NodoPila *nuevo = (NodoPila *)malloc(sizeof(NodoPila));
+
+        nuevo->datos = r;
+        nuevo->siguiente = auxiliar;
+        auxiliar = nuevo;
     }
 
-    while (topeAux != -1)
+    while (auxiliar != NULL)
     {
-        pila[++tope] = auxiliar[topeAux];
-        topeAux--;
+        Recipiente r = auxiliar->datos;
+
+        pushRecipiente(r);
+
+        NodoPila *eliminar = auxiliar;
+        auxiliar = auxiliar->siguiente;
+        free(eliminar);
     }
 
     return total;
@@ -167,10 +245,9 @@ float totalLitrosSabor(const char sabor[])
 // Busca y retira litros de recipientes (LIFO desde el tope)
 void buscarRecipiente(const char sabor[], float litrosSolicitados)
 {
-    Recipiente auxiliar[MAX_SABORES];
-    int topeAux = -1;
+    NodoPila *auxiliar = NULL;
 
-    while (tope != -1)
+    while (tope != NULL)
     {
         Recipiente r = pop();
 
@@ -180,39 +257,43 @@ void buscarRecipiente(const char sabor[], float litrosSolicitados)
             {
                 r.litros -= litrosSolicitados;
                 litrosSolicitados = 0;
-
-                pila[++tope] = r;
             }
             else
             {
                 litrosSolicitados -= r.litros;
-
-                if (litrosSolicitados < 0)
-                {
-                    r.litros = -litrosSolicitados;
-                    litrosSolicitados = 0;
-                    pila[++tope] = r;
-                }
+                r.litros = 0;
             }
         }
-        else
+
+        if (r.litros > 0)
         {
-            auxiliar[++topeAux] = r;
+            NodoPila *nuevo = (NodoPila *)malloc(sizeof(NodoPila));
+
+            nuevo->datos = r;
+            nuevo->siguiente = auxiliar;
+            auxiliar = nuevo;
         }
     }
 
-    while (topeAux != -1)
+    while (auxiliar != NULL)
     {
-        pila[++tope] = auxiliar[topeAux];
-        topeAux--;
+        Recipiente r = auxiliar->datos;
+
+        pushRecipiente(r);
+
+        NodoPila *eliminar = auxiliar;
+        auxiliar = auxiliar->siguiente;
+
+        free(eliminar);
     }
 }
 // Muestra todos los clientes en espera
+// Muestra todos los clientes en espera
 void mostrarCola()
 {
-    int i;
+    NodoCliente *actual;
 
-    if (cabeza > final)
+    if (cabeza == NULL)
     {
         printf("No hay clientes en espera.\n");
         return;
@@ -220,45 +301,81 @@ void mostrarCola()
 
     printf("\n----- CLIENTES EN ESPERA -----\n");
 
-    for (i = cabeza; i <= final; i++)
+    actual = cabeza;
+
+    while (actual != NULL)
     {
-        printf("Nombre: %s\n", cola[i].nombre);
-        printf("Sabor: %s\n", cola[i].sabor);
-        printf("Litros: %.2f\n", cola[i].litros);
-        printf("Total: $%.2f\n\n", cola[i].total);
+        printf("Nombre: %s\n", actual->datos.nombre);
+        printf("Sabor: %s\n", actual->datos.sabor);
+        printf("Litros: %.2f\n", actual->datos.litros);
+        printf("Total: $%.2f\n\n", actual->datos.total);
+
+        actual = actual->siguiente;
     }
 }
 // Muestra todos los recipientes disponibles
 void mostrarPila()
 {
-    Recipiente auxiliar[MAX_SABORES];
-    int topeAux = -1;
+    NodoPila *auxiliar = NULL;
 
-    if (tope == -1)
+    if (tope == NULL)
     {
         printf("La pila esta vacia.\n");
         return;
     }
 
-    printf("\n------ PILA DE RECIPIENTES ------\n");
+    printf("\n----- RECIPIENTES DISPONIBLES -----\n");
 
-    while (tope != -1)
+    while (tope != NULL)
     {
         Recipiente r = pop();
 
         printf("Sabor: %s\n", r.sabor);
         printf("Litros: %.2f\n\n", r.litros);
 
-        auxiliar[++topeAux] = r;
+        NodoPila *nuevo = (NodoPila *)malloc(sizeof(NodoPila));
+
+        nuevo->datos = r;
+        nuevo->siguiente = auxiliar;
+        auxiliar = nuevo;
     }
 
-    while (topeAux != -1)
+    while (auxiliar != NULL)
     {
-        pila[++tope] = auxiliar[topeAux];
-        topeAux--;
+        Recipiente r = auxiliar->datos;
+
+        pushRecipiente(r);
+
+        NodoPila *eliminar = auxiliar;
+        auxiliar = auxiliar->siguiente;
+        free(eliminar);
     }
 }
-// Menú principal del sistema
+
+void liberarMemoria()
+{
+    NodoCliente *auxCliente;
+    NodoPila *auxPila;
+
+    // Liberar la cola
+    while (cabeza != NULL)
+    {
+        auxCliente = cabeza;
+        cabeza = cabeza->siguiente;
+        free(auxCliente);
+    }
+
+    final = NULL;
+
+    // Liberar la pila
+    while (tope != NULL)
+    {
+        auxPila = tope;
+        tope = tope->siguiente;
+        free(auxPila);
+    }
+}
+
 int main()
 {
     int opcion;
@@ -298,9 +415,10 @@ int main()
                 break;
 
             case 6:
+                liberarMemoria();
                 printf("Gracias por utilizar el sistema.\n");
                 break;
-
+                
             default:
                 printf("Opcion invalida.\n");
         }
