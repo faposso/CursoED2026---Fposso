@@ -4,7 +4,7 @@ void swap(int *a, int *b) {
  int temp = *a; 
  *a = *b; 
  *b = temp; 
-}  // recuperar token
+}  // recuperar credenciales
 // Función partición: coloca el pivote en su posición correcta 
 int partition(int arr[], int low, int high) { 
     int pivot = arr[low]; 
